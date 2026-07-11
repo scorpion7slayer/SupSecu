@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.SupSecu" parent="android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:fontFamily">sans</item>
+        <item name="android:windowBackground">@color/app_background</item>
+        <item name="android:colorAccent">@color/primary</item>
+        <item name="android:statusBarColor">@color/app_background</item>
+        <item name="android:navigationBarColor">@color/ink</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowActionModeOverlay">true</item>
+    </style>
+
+    <style name="Text.SupSecu.Display" parent="android:style/TextAppearance.Material.Headline">
+        <item name="android:textColor">@color/ink</item>
+        <item name="android:textSize">30sp</item>
+        <item name="android:fontFamily">sans</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:lineSpacingMultiplier">1.08</item>
+    </style>
+
+    <style name="Text.SupSecu.Title" parent="android:style/TextAppearance.Material.Title">
+        <item name="android:textColor">@color/ink</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:fontFamily">sans-medium</item>
+    </style>
+
+    <style name="Text.SupSecu.Body" parent="android:style/TextAppearance.Material.Body1">
+        <item name="android:textColor">@color/muted</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:lineSpacingMultiplier">1.18</item>
+    </style>
+
+    <style name="Text.SupSecu.Label" parent="android:style/TextAppearance.Material.Body1">
+        <item name="android:textColor">@color/ink</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:fontFamily">sans-medium</item>
+    </style>
+
+    <style name="Widget.SupSecu.Button.Primary" parent="android:style/Widget.Material.Button">
+        <item name="android:background">@drawable/bg_button_primary</item>
+        <item name="android:textColor">@color/on_primary</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:fontFamily">sans-medium</item>
+        <item name="android:minHeight">52dp</item>
+        <item name="android:paddingStart">20dp</item>
+        <item name="android:paddingEnd">20dp</item>
+        <item name="android:stateListAnimator">@null</item>
+    </style>
+
+    <style name="Widget.SupSecu.Button.Danger" parent="Widget.SupSecu.Button.Primary">
+        <item name="android:background">@drawable/bg_button_danger</item>
+    </style>
+
+    <style name="Widget.SupSecu.Button.Secondary" parent="android:style/Widget.Material.Button">
+        <item name="android:background">@drawable/bg_button_secondary</item>
+        <item name="android:textColor">@color/primary</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:fontFamily">sans-medium</item>
+        <item name="android:minHeight">52dp</item>
+        <item name="android:paddingStart">20dp</item>
+        <item name="android:paddingEnd">20dp</item>
+        <item name="android:stateListAnimator">@null</item>
+    </style>
+
+    <style name="Widget.SupSecu.Button.Text" parent="android:style/Widget.Material.Button.Borderless">
+        <item name="android:textColor">@color/muted</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:fontFamily">sans-medium</item>
+        <item name="android:minHeight">48dp</item>
+    </style>
+</resources>

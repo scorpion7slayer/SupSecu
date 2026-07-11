@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<lint>
+    <issue id="Typos">
+        <ignore path="src/main/res/values/strings.xml" />
+    </issue>
+    <issue id="OldTargetApi" severity="ignore" />
+    <!-- AGP 9.2.0 documente Gradle 9.4.1 comme version par défaut compatible. -->
+    <issue id="AndroidGradlePluginVersion">
+        <ignore path="../gradle/wrapper/gradle-wrapper.properties" />
+    </issue>
+    <!-- L’API 37 n’est pas encore distribuée par sdkmanager sur cet environnement. -->
+    <issue id="GradleDependency">
+        <ignore path="build.gradle.kts" />
+    </issue>
+    <!-- Les variantes v33 correspondantes contiennent bien la couche monochrome. -->
+    <issue id="MonochromeLauncherIcon">
+        <ignore path="src/main/res/mipmap-anydpi/ic_launcher.xml" />
+        <ignore path="src/main/res/mipmap-anydpi/ic_launcher_round.xml" />
+    </issue>
+</lint>

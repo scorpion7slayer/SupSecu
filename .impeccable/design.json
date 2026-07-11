@@ -1,0 +1,162 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-07-11T23:09:32Z",
+  "title": "Design System: SupSécu",
+  "extensions": {
+    "colorMeta": {
+      "primary": {
+        "role": "primary",
+        "displayName": "Teal bouclier",
+        "canonical": "oklch(0.480 0.105 170)",
+        "tonalRamp": ["oklch(0.15 0.04 170)", "oklch(0.25 0.06 170)", "oklch(0.35 0.08 170)", "oklch(0.48 0.105 170)", "oklch(0.60 0.09 170)", "oklch(0.72 0.07 170)", "oklch(0.84 0.05 170)", "oklch(0.95 0.02 170)"]
+      },
+      "primary-tint": {
+        "role": "primary",
+        "displayName": "Brume teal",
+        "canonical": "oklch(0.930 0.035 170)",
+        "tonalRamp": ["oklch(0.15 0.02 170)", "oklch(0.27 0.025 170)", "oklch(0.39 0.03 170)", "oklch(0.52 0.035 170)", "oklch(0.65 0.035 170)", "oklch(0.78 0.035 170)", "oklch(0.88 0.035 170)", "oklch(0.95 0.025 170)"]
+      },
+      "background": {
+        "role": "neutral",
+        "displayName": "Blanc direct",
+        "canonical": "oklch(1.000 0.000 0)",
+        "tonalRamp": ["oklch(0.15 0 0)", "oklch(0.27 0 0)", "oklch(0.39 0 0)", "oklch(0.52 0 0)", "oklch(0.65 0 0)", "oklch(0.78 0 0)", "oklch(0.90 0 0)", "oklch(1 0 0)"]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "Surface minérale",
+        "canonical": "oklch(0.965 0.006 170)",
+        "tonalRamp": ["oklch(0.15 0.006 170)", "oklch(0.27 0.006 170)", "oklch(0.39 0.006 170)", "oklch(0.52 0.006 170)", "oklch(0.65 0.006 170)", "oklch(0.78 0.006 170)", "oklch(0.90 0.006 170)", "oklch(0.965 0.006 170)"]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Encre minérale",
+        "canonical": "oklch(0.220 0.025 170)",
+        "tonalRamp": ["oklch(0.15 0.02 170)", "oklch(0.22 0.025 170)", "oklch(0.34 0.025 170)", "oklch(0.46 0.022 170)", "oklch(0.58 0.019 170)", "oklch(0.70 0.016 170)", "oklch(0.82 0.012 170)", "oklch(0.95 0.006 170)"]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Gris-teal lisible",
+        "canonical": "oklch(0.480 0.035 170)",
+        "tonalRamp": ["oklch(0.15 0.02 170)", "oklch(0.27 0.03 170)", "oklch(0.39 0.035 170)", "oklch(0.48 0.035 170)", "oklch(0.60 0.03 170)", "oklch(0.72 0.025 170)", "oklch(0.84 0.018 170)", "oklch(0.95 0.008 170)"]
+      },
+      "outline": {
+        "role": "neutral",
+        "displayName": "Contour calme",
+        "canonical": "oklch(0.820 0.015 170)",
+        "tonalRamp": ["oklch(0.15 0.01 170)", "oklch(0.27 0.012 170)", "oklch(0.39 0.015 170)", "oklch(0.52 0.015 170)", "oklch(0.65 0.015 170)", "oklch(0.75 0.015 170)", "oklch(0.82 0.015 170)", "oklch(0.95 0.008 170)"]
+      },
+      "danger": {
+        "role": "secondary",
+        "displayName": "Rouge d'intervention",
+        "canonical": "oklch(0.480 0.180 28)",
+        "tonalRamp": ["oklch(0.15 0.06 28)", "oklch(0.25 0.10 28)", "oklch(0.36 0.14 28)", "oklch(0.48 0.18 28)", "oklch(0.60 0.16 28)", "oklch(0.72 0.12 28)", "oklch(0.84 0.07 28)", "oklch(0.95 0.025 28)"]
+      },
+      "danger-surface": {
+        "role": "secondary",
+        "displayName": "Brume d'alerte",
+        "canonical": "oklch(0.960 0.025 28)",
+        "tonalRamp": ["oklch(0.15 0.02 28)", "oklch(0.27 0.025 28)", "oklch(0.39 0.025 28)", "oklch(0.52 0.025 28)", "oklch(0.65 0.025 28)", "oklch(0.78 0.025 28)", "oklch(0.88 0.025 28)", "oklch(0.96 0.025 28)"]
+      },
+      "success": {
+        "role": "tertiary",
+        "displayName": "Vert de confirmation",
+        "canonical": "oklch(0.460 0.110 155)",
+        "tonalRamp": ["oklch(0.15 0.04 155)", "oklch(0.25 0.065 155)", "oklch(0.35 0.09 155)", "oklch(0.46 0.11 155)", "oklch(0.60 0.10 155)", "oklch(0.72 0.08 155)", "oklch(0.84 0.05 155)", "oklch(0.95 0.02 155)"]
+      },
+      "success-surface": {
+        "role": "tertiary",
+        "displayName": "Brume de confirmation",
+        "canonical": "oklch(0.950 0.030 155)",
+        "tonalRamp": ["oklch(0.15 0.02 155)", "oklch(0.27 0.025 155)", "oklch(0.39 0.03 155)", "oklch(0.52 0.03 155)", "oklch(0.65 0.03 155)", "oklch(0.78 0.03 155)", "oklch(0.88 0.03 155)", "oklch(0.95 0.03 155)"]
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Verdict principal et alerte plein écran." },
+      "title": { "displayName": "Titre", "purpose": "Sections et panneaux." },
+      "body": { "displayName": "Corps", "purpose": "Explications courtes et lisibles." },
+      "label": { "displayName": "Libellé", "purpose": "Champs, états et domaines." }
+    },
+    "shadows": [],
+    "motion": [
+      { "name": "state-quick", "value": "180ms ease-out", "purpose": "Retour de pression et changement d'état uniquement." }
+    ],
+    "breakpoints": [
+      { "name": "compact", "value": "600px" },
+      { "name": "expanded", "value": "840px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Action principale hors situation dangereuse.",
+      "html": "<button class=\"ds-btn-primary\">Activer la protection</button>",
+      "css": ".ds-btn-primary { min-height: 52px; padding: 14px 20px; border: 0; border-radius: 12px; background: #007054; color: #fff; font: 500 16px Roboto, sans-serif; } .ds-btn-primary:hover { background: #005c45; } .ds-btn-primary:focus-visible { outline: 3px solid #d2f0e4; outline-offset: 2px; }"
+    },
+    {
+      "name": "Danger Button",
+      "kind": "button",
+      "refersTo": "button-danger",
+      "description": "Action de sortie sûre dans l'alerte.",
+      "html": "<button class=\"ds-btn-danger\">Quitter ce site</button>",
+      "css": ".ds-btn-danger { min-height: 52px; padding: 14px 20px; border: 0; border-radius: 12px; background: #ac1b18; color: #fff; font: 500 16px Roboto, sans-serif; } .ds-btn-danger:hover { background: #8c1412; } .ds-btn-danger:focus-visible { outline: 3px solid #ffece9; outline-offset: 2px; }"
+    },
+    {
+      "name": "Official Site Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Ouvre l'adresse officielle sans rivaliser avec l'action de sortie.",
+      "html": "<button class=\"ds-btn-secondary\">Ouvrir Lidl</button>",
+      "css": ".ds-btn-secondary { min-height: 52px; padding: 12px 20px; border: 2px solid #007054; border-radius: 12px; background: #fff; color: #007054; font: 500 16px Roboto, sans-serif; } .ds-btn-secondary:hover { background: #d2f0e4; } .ds-btn-secondary:focus-visible { outline: 3px solid #d2f0e4; outline-offset: 2px; }"
+    },
+    {
+      "name": "URL Field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Champ multiligne pour une adresse longue.",
+      "html": "<input class=\"ds-url-input\" value=\"https://exemple.com/\" aria-label=\"Adresse à vérifier\">",
+      "css": ".ds-url-input { min-height: 56px; width: 100%; padding: 10px 14px; box-sizing: border-box; border: 1px solid #bbc7c2; border-radius: 12px; background: #fff; color: #0e1e19; font: 400 16px Roboto, sans-serif; } .ds-url-input:focus { border-color: #007054; outline: 2px solid #d2f0e4; }"
+    },
+    {
+      "name": "Protection Status",
+      "kind": "custom",
+      "refersTo": "panel",
+      "description": "État textuel calme, positif ou désactivé.",
+      "html": "<section class=\"ds-status\"><strong>Protection active</strong><span>SupSécu surveille les adresses accessibles.</span></section>",
+      "css": ".ds-status { display: flex; flex-direction: column; gap: 4px; padding: 16px; border-radius: 12px; background: #e0f5e6; color: #0e1e19; font: 400 14px Roboto, sans-serif; } .ds-status strong { color: #0a693c; font-size: 16px; font-weight: 500; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "Le garde-fou de poche",
+    "overview": "SupSécu est utilisé au moment précis où une offre semble trop belle, souvent sur un téléphone tenu d'une main et sous une lumière imparfaite. L'application reste blanche, nette et calme pendant la configuration ; seule une preuve de risque transforme l'écran en avertissement explicite. L'interface doit disparaître derrière la décision à prendre. Elle refuse les tableaux de bord antivirus surchargés, les scores opaques et la dramatisation permanente. Le domaine observé et l'adresse officielle sont toujours plus importants que la décoration.",
+    "keyCharacteristics": [
+      "Hiérarchie courte et immédiatement scannable.",
+      "Actions tactiles de 48 dp minimum.",
+      "Teal protecteur pour l'action normale ; rouge réservé au risque établi.",
+      "Retour d'état textuel, iconographique et coloré.",
+      "Mode sombre structurellement identique au mode clair."
+    ],
+    "rules": [
+      { "name": "The Silent Safety Rule", "body": "Le rouge est interdit lorsque l'analyse ne dispose d'aucune preuve suffisante.", "section": "colors" },
+      { "name": "The Domain Contrast Rule", "body": "Les domaines observé et officiel utilisent simultanément couleur, libellé et position ; la couleur seule ne porte jamais le verdict.", "section": "colors" },
+      { "name": "The Plain Language Rule", "body": "Les titres décrivent la situation ; aucun jargon de cybersécurité ne remplace une explication concrète.", "section": "typography" },
+      { "name": "The Flat-By-Default Rule", "body": "Aucune ombre décorative ; un contour fin est réservé aux champs et aux adresses copiables.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do rester silencieux lorsqu'un domaine officiel est reconnu.",
+      "Do afficher les noms de domaine en monospace et avec leur libellé complet.",
+      "Do conserver des zones tactiles d'au moins 48dp et respecter l'agrandissement système.",
+      "Do utiliser le teal pour la protection normale et réserver le rouge à l'intervention.",
+      "Do maintenir la même hiérarchie en mode clair et sombre."
+    ],
+    "donts": [
+      "Don't construire un tableau de bord antivirus surchargé de jauges et de scores incompréhensibles.",
+      "Don't créer une interface alarmiste qui affiche du rouge ou des notifications lorsque rien de dangereux n'est établi.",
+      "Don't annoncer un verdict absolu et trompeur à partir d'un simple domaine inconnu.",
+      "Don't rendre des réglages techniques indispensables avant la vérification manuelle.",
+      "Don't utiliser de glassmorphism, de texte en dégradé, de carte au rayon supérieur à 16dp ou de grande ombre décorative."
+    ]
+  }
+}

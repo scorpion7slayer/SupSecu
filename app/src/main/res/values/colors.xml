@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="app_background">#FFFFFF</color>
+    <color name="surface">#F0F5F3</color>
+    <color name="ink">#0E1E19</color>
+    <color name="muted">#4A645B</color>
+    <color name="outline">#BBC7C2</color>
+    <color name="primary">#007054</color>
+    <color name="primary_tint">#D2F0E4</color>
+    <color name="on_primary">#FFFFFF</color>
+    <color name="danger">#AC1B18</color>
+    <color name="danger_surface">#FFECE9</color>
+    <color name="success">#0A693C</color>
+    <color name="success_surface">#E0F5E6</color>
+</resources>
