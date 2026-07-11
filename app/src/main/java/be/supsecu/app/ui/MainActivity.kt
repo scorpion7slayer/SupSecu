@@ -454,6 +454,7 @@ class MainActivity : Activity() {
 
     private fun requestUpdateInstallation(apk: File) {
         pendingInstallFile = apk
+        updatePreferences.edit().putString(KEY_PENDING_APK_NAME, apk.name).apply()
         if (!updateInstaller.canInstallPackages()) {
             AlertDialog.Builder(this)
                 .setTitle(R.string.update_title)
@@ -469,14 +470,26 @@ class MainActivity : Activity() {
     }
 
     private fun resumePendingInstallation() {
+        if (pendingInstallFile == null) {
+            val savedName = updatePreferences.getString(KEY_PENDING_APK_NAME, null)
+                ?.takeIf { it.matches(Regex("SupSecu-[0-9]+\\.apk")) }
+            pendingInstallFile = savedName?.let { File(cacheDir, "updates/$it") }?.takeIf(File::isFile)
+            if (savedName != null && pendingInstallFile == null) {
+                updatePreferences.edit().remove(KEY_PENDING_APK_NAME).apply()
+            }
+        }
         if (pendingInstallFile != null && updateInstaller.canInstallPackages()) installPendingUpdate()
     }
 
     private fun installPendingUpdate() {
         val apk = pendingInstallFile?.takeIf(File::isFile) ?: return
-        pendingInstallFile = null
         updateStatus.setText(R.string.update_status_ready)
-        runCatching { updateInstaller.install(apk) }.onFailure(::showUpdateFailure)
+        runCatching { updateInstaller.install(apk) }
+            .onSuccess {
+                pendingInstallFile = null
+                updatePreferences.edit().remove(KEY_PENDING_APK_NAME).apply()
+            }
+            .onFailure(::showUpdateFailure)
     }
 
     private fun showUpdateFailure(failure: Throwable) {
@@ -507,5 +520,6 @@ class MainActivity : Activity() {
         private const val NOTIFICATION_PERMISSION_REQUEST = 10
         private const val MINIMUM_TOKEN_LENGTH = 20
         private const val KEY_LAST_UPDATE_CHECK = "last_successful_check"
+        private const val KEY_PENDING_APK_NAME = "pending_apk_name"
     }
 }
