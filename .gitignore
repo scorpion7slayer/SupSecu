@@ -1,4 +1,6 @@
 .gradle/
+.gradle-local/
+.gradle-runtime/
 .idea/
 local.properties
 **/build/

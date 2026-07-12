@@ -34,30 +34,40 @@ class SecurityAlertOverlay(
         onOpenOfficial: () -> Unit,
         onContinue: () -> Unit,
     ) {
-        val brand = assessment.brand ?: return
         val observedHost = assessment.observedAsciiHost ?: return
+        val brand = assessment.brand
         dismiss()
 
         val view = inflater.inflate(R.layout.view_security_alert, FrameLayout(context), false)
-        view.findViewById<TextView>(R.id.alertIntro).text =
-            view.context.getString(R.string.alert_intro, brand.displayName)
         view.findViewById<TextView>(R.id.alertObservedHost).text = observedHost
-        view.findViewById<TextView>(R.id.alertOfficialLabel).text =
-            view.context.getString(R.string.official_address_label, brand.displayName)
-        view.findViewById<TextView>(R.id.alertOfficialUrl).text = brand.officialUrl
+        val officialLabel = view.findViewById<TextView>(R.id.alertOfficialLabel)
+        val officialUrl = view.findViewById<TextView>(R.id.alertOfficialUrl)
+        val openOfficialButton = view.findViewById<Button>(R.id.openOfficialButton)
+        if (brand != null) {
+            view.findViewById<TextView>(R.id.alertIntro).text =
+                view.context.getString(R.string.alert_intro, brand.displayName)
+            officialLabel.text = view.context.getString(R.string.official_address_label, brand.displayName)
+            officialUrl.text = brand.officialUrl
+            openOfficialButton.apply {
+                text = view.context.getString(R.string.open_named_official_site, brand.displayName)
+                setOnClickListener {
+                    dismiss()
+                    onOpenOfficial()
+                }
+            }
+        } else {
+            view.findViewById<TextView>(R.id.alertTitle).setText(R.string.known_threat_alert_title)
+            view.findViewById<TextView>(R.id.alertIntro).setText(R.string.known_threat_alert_intro)
+            view.findViewById<TextView>(R.id.alertReason).setText(R.string.known_threat_alert_reason)
+            officialLabel.visibility = View.GONE
+            officialUrl.visibility = View.GONE
+            openOfficialButton.visibility = View.GONE
+        }
 
         view.findViewById<Button>(R.id.leaveSiteButton).setOnClickListener {
             dismiss()
             onLeave()
         }
-        view.findViewById<Button>(R.id.openOfficialButton).apply {
-            text = view.context.getString(R.string.open_named_official_site, brand.displayName)
-            setOnClickListener {
-                dismiss()
-                onOpenOfficial()
-            }
-        }
-
         var awaitingConfirmation = false
         var confirmationStartedAt = 0L
         val continueButton = view.findViewById<Button>(R.id.continueButton)

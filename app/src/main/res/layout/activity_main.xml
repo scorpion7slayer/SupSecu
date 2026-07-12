@@ -248,12 +248,52 @@
                 android:layout_marginTop="12dp"
                 android:text="@string/open_official_site"
                 android:visibility="gone" />
+
+            <Button
+                android:id="@+id/shareResultButton"
+                style="@style/Widget.SupSecu.Button.Text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/share_report"
+                android:visibility="gone" />
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
+            android:background="@drawable/bg_panel"
+            android:orientation="vertical"
+            android:padding="18dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/threat_data_title"
+                android:textAppearance="@style/Text.SupSecu.Title" />
+
+            <TextView
+                android:id="@+id/threatDataStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/threat_data_empty"
+                android:textAppearance="@style/Text.SupSecu.Body" />
+
+            <Button
+                android:id="@+id/refreshThreatDataButton"
+                style="@style/Widget.SupSecu.Button.Secondary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:text="@string/refresh_threat_data" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
             android:background="@drawable/bg_panel"
             android:orientation="vertical"
             android:padding="18dp">
@@ -272,64 +312,41 @@
                 android:text="@string/update_status_initial"
                 android:textAppearance="@style/Text.SupSecu.Body" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                android:labelFor="@id/githubTokenInput"
-                android:text="@string/github_token_label"
-                android:textAppearance="@style/Text.SupSecu.Label" />
-
-            <EditText
-                android:id="@+id/githubTokenInput"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/bg_input"
-                android:hint="@string/github_token_hint"
-                android:importantForAutofill="noExcludeDescendants"
-                android:inputType="textPassword|textNoSuggestions"
-                android:maxLines="1"
-                android:minHeight="56dp"
-                android:paddingStart="14dp"
-                android:paddingEnd="14dp"
-                android:textColor="@color/ink"
-                android:textColorHint="@color/muted"
-                android:textSize="16sp" />
-
-            <TextView
-                android:id="@+id/githubTokenExplanation"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="@string/github_token_explanation"
-                android:textColor="@color/muted"
-                android:textSize="13sp" />
-
-            <Button
-                android:id="@+id/saveGithubTokenButton"
-                style="@style/Widget.SupSecu.Button.Secondary"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                android:text="@string/save_github_access" />
-
-            <Button
-                android:id="@+id/clearGithubTokenButton"
-                style="@style/Widget.SupSecu.Button.Secondary"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:text="@string/clear_github_access"
-                android:visibility="gone" />
-
             <Button
                 android:id="@+id/checkUpdateButton"
                 style="@style/Widget.SupSecu.Button.Primary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="14dp"
                 android:text="@string/check_update" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/feedback_title"
+                android:textAppearance="@style/Text.SupSecu.Title" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/feedback_body"
+                android:textAppearance="@style/Text.SupSecu.Body" />
+
+            <Button
+                android:id="@+id/sendFeedbackButton"
+                style="@style/Widget.SupSecu.Button.Secondary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:text="@string/send_feedback" />
         </LinearLayout>
 
         <LinearLayout

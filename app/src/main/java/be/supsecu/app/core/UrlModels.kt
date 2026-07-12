@@ -3,6 +3,7 @@ package be.supsecu.app.core
 enum class Verdict {
     OFFICIAL,
     IMPERSONATION,
+    KNOWN_THREAT,
     SUSPICIOUS,
     NO_EVIDENCE,
     UNVERIFIABLE,

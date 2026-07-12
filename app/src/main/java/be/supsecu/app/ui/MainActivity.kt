@@ -30,22 +30,29 @@ import be.supsecu.app.core.FraudAnalyzer
 import be.supsecu.app.core.UrlNormalizer
 import be.supsecu.app.core.UrlSource
 import be.supsecu.app.core.Verdict
+import be.supsecu.app.feedback.FeedbackConfig
 import be.supsecu.app.service.BrowserProtectionService
+import be.supsecu.app.reputation.ThreatFeedStats
+import be.supsecu.app.reputation.ThreatFeedUpdater
+import be.supsecu.app.reputation.ThreatRefreshResult
+import be.supsecu.app.reputation.ThreatRepository
 import be.supsecu.app.update.ApkUpdateInstaller
 import be.supsecu.app.update.GitHubUpdateClient
-import be.supsecu.app.update.SecureTokenStore
 import be.supsecu.app.update.UpdateCheckResult
 import be.supsecu.app.update.UpdateConfig
 import java.io.File
+import java.text.DateFormat
+import java.util.Date
 import java.util.concurrent.Executors
 
 class MainActivity : Activity() {
     private val normalizer = UrlNormalizer(AndroidIdnaCodec)
     private val analyzer = FraudAnalyzer(normalizer)
     private val updateExecutor = Executors.newSingleThreadExecutor()
-    private val tokenStore by lazy { SecureTokenStore(this) }
     private val updateInstaller by lazy { ApkUpdateInstaller(this) }
     private val updatePreferences by lazy { getSharedPreferences("update_state", MODE_PRIVATE) }
+    private val threatRepository by lazy { ThreatRepository(this) }
+    private val threatFeedUpdater by lazy { ThreatFeedUpdater(this, updateExecutor) }
 
     private lateinit var protectionStatus: LinearLayout
     private lateinit var statusTitle: TextView
@@ -58,11 +65,13 @@ class MainActivity : Activity() {
     private lateinit var resultTitle: TextView
     private lateinit var resultBody: TextView
     private lateinit var resultOfficialButton: Button
+    private lateinit var shareResultButton: Button
     private lateinit var updateStatus: TextView
-    private lateinit var githubTokenInput: EditText
-    private lateinit var saveGithubTokenButton: Button
-    private lateinit var clearGithubTokenButton: Button
     private lateinit var checkUpdateButton: Button
+    private lateinit var threatDataStatus: TextView
+    private lateinit var refreshThreatDataButton: Button
+    private var lastAssessment: Assessment? = null
+    private var lastAssessedUrl: String? = null
     private var pendingInstallFile: File? = null
     private var automaticCheckStarted = false
 
@@ -74,6 +83,7 @@ class MainActivity : Activity() {
         configureBrandSpinner()
         configureActions()
         handleIncomingIntent(intent)
+        refreshThreatData(force = false)
     }
 
     private fun configureSystemInsets() {
@@ -107,7 +117,7 @@ class MainActivity : Activity() {
         super.onResume()
         updateProtectionStatus()
         updateNotificationPermission()
-        refreshUpdateAccessUi()
+        showThreatStats(threatRepository.stats())
         resumePendingInstallation()
         maybeCheckForUpdatesAutomatically()
     }
@@ -138,16 +148,12 @@ class MainActivity : Activity() {
         resultTitle = findViewById(R.id.resultTitle)
         resultBody = findViewById(R.id.resultBody)
         resultOfficialButton = findViewById(R.id.resultOfficialButton)
+        shareResultButton = findViewById(R.id.shareResultButton)
         updateStatus = findViewById(R.id.updateStatus)
-        githubTokenInput = findViewById(R.id.githubTokenInput)
-        saveGithubTokenButton = findViewById(R.id.saveGithubTokenButton)
-        clearGithubTokenButton = findViewById(R.id.clearGithubTokenButton)
         checkUpdateButton = findViewById(R.id.checkUpdateButton)
+        threatDataStatus = findViewById(R.id.threatDataStatus)
+        refreshThreatDataButton = findViewById(R.id.refreshThreatDataButton)
         updateStatus.text = getString(R.string.update_status_initial, currentVersionName())
-        findViewById<TextView>(R.id.githubTokenExplanation).text = getString(
-            R.string.github_token_explanation,
-            UpdateConfig.repositoryLabel,
-        )
     }
 
     private fun configureBrandSpinner() {
@@ -169,9 +175,10 @@ class MainActivity : Activity() {
         findViewById<Button>(R.id.verifyButton).setOnClickListener {
             verifyInput(UrlSource.MANUAL)
         }
-        saveGithubTokenButton.setOnClickListener { saveGitHubAccess() }
-        clearGithubTokenButton.setOnClickListener { clearGitHubAccess() }
         checkUpdateButton.setOnClickListener { checkForUpdates(showCurrentResult = true) }
+        refreshThreatDataButton.setOnClickListener { refreshThreatData(force = true) }
+        findViewById<Button>(R.id.sendFeedbackButton).setOnClickListener { shareFeedback(includeResult = false) }
+        shareResultButton.setOnClickListener { shareFeedback(includeResult = true) }
     }
 
     private fun showAccessibilityDisclosure() {
@@ -190,7 +197,8 @@ class MainActivity : Activity() {
 
     private fun verifyInput(source: UrlSource) {
         val rawUrl = urlInput.text?.toString().orEmpty()
-        if (normalizer.normalize(rawUrl) == null) {
+        val normalized = normalizer.normalize(rawUrl)
+        if (normalized == null) {
             urlInput.error = getString(R.string.invalid_url)
             resultPanel.visibility = View.GONE
             return
@@ -200,11 +208,23 @@ class MainActivity : Activity() {
         val selectedBrandId = brandSpinner.selectedItemPosition
             .takeIf { it > 0 }
             ?.let { BrandCatalog.brands[it - 1].id }
-        val assessment = analyzer.analyze(
+        val localAssessment = analyzer.analyze(
             rawUrl = rawUrl,
             source = source,
             claimedBrandId = selectedBrandId,
         )
+        val reputationAssessment = if (localAssessment.verdict == Verdict.OFFICIAL) {
+            null
+        } else {
+            threatRepository.assessHost(normalized.asciiHost)
+        }
+        val assessment = if (reputationAssessment != null && reputationAssessment.brand == null && localAssessment.brand != null) {
+            reputationAssessment.copy(brand = localAssessment.brand, verdict = Verdict.IMPERSONATION)
+        } else {
+            reputationAssessment ?: localAssessment
+        }
+        lastAssessment = assessment
+        lastAssessedUrl = rawUrl
         showAssessment(assessment)
         currentFocus?.let { focusedView ->
             getSystemService(InputMethodManager::class.java).hideSoftInputFromWindow(focusedView.windowToken, 0)
@@ -215,6 +235,7 @@ class MainActivity : Activity() {
         resultPanel.visibility = View.VISIBLE
         resultOfficialButton.visibility = View.GONE
         resultOfficialButton.setOnClickListener(null)
+        shareResultButton.visibility = View.VISIBLE
 
         val host = assessment.observedAsciiHost.orEmpty()
         val brand = assessment.brand
@@ -237,6 +258,13 @@ class MainActivity : Activity() {
                     brand?.officialUrl.orEmpty(),
                 )
                 showOfficialButton(assessment)
+            }
+
+            Verdict.KNOWN_THREAT -> {
+                resultPanel.setBackgroundResource(R.drawable.bg_result_danger)
+                resultTitle.setText(R.string.result_known_threat_title)
+                resultTitle.setTextColor(getColor(R.color.danger))
+                resultBody.text = getString(R.string.result_known_threat_body, host)
             }
 
             Verdict.SUSPICIOUS -> {
@@ -331,41 +359,8 @@ class MainActivity : Activity() {
         if (allowed) notificationButton.setText(R.string.notification_allowed)
     }
 
-    private fun refreshUpdateAccessUi() {
-        val saved = tokenStore.hasToken()
-        githubTokenInput.hint = getString(
-            if (saved) R.string.github_access_saved else R.string.github_token_hint,
-        )
-        saveGithubTokenButton.setText(
-            if (saved) R.string.replace_github_access else R.string.save_github_access,
-        )
-        clearGithubTokenButton.visibility = if (saved) View.VISIBLE else View.GONE
-    }
-
-    private fun saveGitHubAccess() {
-        val token = githubTokenInput.text?.toString().orEmpty().trim()
-        if (token.length < MINIMUM_TOKEN_LENGTH || token.any(Char::isWhitespace)) {
-            githubTokenInput.error = getString(R.string.github_token_invalid)
-            return
-        }
-        tokenStore.saveToken(token)
-        githubTokenInput.text?.clear()
-        githubTokenInput.error = null
-        refreshUpdateAccessUi()
-        Toast.makeText(this, R.string.github_access_saved, Toast.LENGTH_SHORT).show()
-        checkForUpdates(showCurrentResult = true)
-    }
-
-    private fun clearGitHubAccess() {
-        tokenStore.clear()
-        githubTokenInput.text?.clear()
-        updatePreferences.edit().clear().apply()
-        updateStatus.text = getString(R.string.update_status_initial, currentVersionName())
-        refreshUpdateAccessUi()
-    }
-
     private fun maybeCheckForUpdatesAutomatically() {
-        if (automaticCheckStarted || !tokenStore.hasToken()) return
+        if (automaticCheckStarted) return
         val lastCheck = updatePreferences.getLong(KEY_LAST_UPDATE_CHECK, 0L)
         if (System.currentTimeMillis() - lastCheck < UpdateConfig.CHECK_INTERVAL_MS) return
         automaticCheckStarted = true
@@ -373,18 +368,11 @@ class MainActivity : Activity() {
     }
 
     private fun checkForUpdates(showCurrentResult: Boolean) {
-        val token = tokenStore.getToken()
-        if (token == null) {
-            updateStatus.setText(R.string.github_access_required)
-            githubTokenInput.requestFocus()
-            return
-        }
-
         setUpdateBusy(true)
         updateStatus.setText(R.string.update_status_checking)
         val client = GitHubUpdateClient(currentVersionCode())
         updateExecutor.execute {
-            val result = runCatching { client.check(token) }
+            val result = runCatching { client.check() }
             runOnUiThread {
                 if (isDestroyed) return@runOnUiThread
                 setUpdateBusy(false)
@@ -426,18 +414,13 @@ class MainActivity : Activity() {
     }
 
     private fun downloadUpdate(update: UpdateCheckResult.Available) {
-        val token = tokenStore.getToken()
-        if (token == null) {
-            updateStatus.setText(R.string.github_access_required)
-            return
-        }
         setUpdateBusy(true)
         updateStatus.text = getString(R.string.update_status_downloading, update.manifest.versionName)
         val destination = File(cacheDir, "updates/SupSecu-${update.manifest.versionCode}.apk")
         val client = GitHubUpdateClient(currentVersionCode())
         updateExecutor.execute {
             val result = runCatching {
-                client.download(update, token, destination).also { apk ->
+                client.download(update, destination).also { apk ->
                     if (!updateInstaller.verify(apk)) {
                         apk.delete()
                         error("La signature de l’APK ne correspond pas à SupSécu.")
@@ -499,8 +482,69 @@ class MainActivity : Activity() {
 
     private fun setUpdateBusy(busy: Boolean) {
         checkUpdateButton.isEnabled = !busy
-        saveGithubTokenButton.isEnabled = !busy
-        clearGithubTokenButton.isEnabled = !busy
+    }
+
+    private fun refreshThreatData(force: Boolean) {
+        refreshThreatDataButton.isEnabled = false
+        threatDataStatus.setText(R.string.threat_data_refreshing)
+        threatFeedUpdater.refresh(force) { result ->
+            runOnUiThread {
+                if (isDestroyed) return@runOnUiThread
+                refreshThreatDataButton.isEnabled = true
+                when (result) {
+                    is ThreatRefreshResult.Updated -> showThreatStats(result.stats)
+                    is ThreatRefreshResult.Current -> showThreatStats(result.stats)
+                    is ThreatRefreshResult.Failed -> {
+                        showThreatStats(result.previousStats)
+                        Toast.makeText(
+                            this,
+                            getString(R.string.threat_data_error, result.error.message?.take(120).orEmpty()),
+                            Toast.LENGTH_LONG,
+                        ).show()
+                    }
+                }
+            }
+        }
+    }
+
+    private fun showThreatStats(stats: ThreatFeedStats) {
+        threatDataStatus.text = if (stats.domainCount <= 0 || stats.updatedAtMillis <= 0L) {
+            getString(R.string.threat_data_empty)
+        } else {
+            val date = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(Date(stats.updatedAtMillis))
+            getString(R.string.threat_data_ready, stats.domainCount, date)
+        }
+    }
+
+    private fun shareFeedback(includeResult: Boolean) {
+        val subject = getString(R.string.feedback_subject)
+        val diagnostics = buildString {
+            appendLine(getString(R.string.feedback_template_intro))
+            appendLine()
+            if (includeResult) {
+                appendLine("URL : ${lastAssessedUrl.orEmpty()}")
+                appendLine("Résultat : ${lastAssessment?.verdict ?: "inconnu"}")
+                appendLine("Marque : ${lastAssessment?.brand?.displayName ?: "non reconnue"}")
+                appendLine()
+            }
+            appendLine("SupSécu ${currentVersionName()}")
+            appendLine("Android ${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})")
+            appendLine("Appareil : ${Build.MANUFACTURER} ${Build.MODEL}")
+            appendLine(getString(R.string.feedback_privacy_note))
+        }
+        val emailIntent = Intent(Intent.ACTION_SENDTO, Uri.fromParts("mailto", FeedbackConfig.EMAIL, null)).apply {
+            putExtra(Intent.EXTRA_SUBJECT, subject)
+            putExtra(Intent.EXTRA_TEXT, diagnostics)
+        }
+        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_EMAIL, arrayOf(FeedbackConfig.EMAIL))
+            putExtra(Intent.EXTRA_SUBJECT, subject)
+            putExtra(Intent.EXTRA_TEXT, diagnostics)
+        }
+        runCatching { startActivity(Intent.createChooser(emailIntent, getString(R.string.send_feedback))) }
+            .recoverCatching { startActivity(Intent.createChooser(shareIntent, getString(R.string.send_feedback))) }
+            .onFailure { Toast.makeText(this, R.string.no_share_app, Toast.LENGTH_LONG).show() }
     }
 
     @Suppress("DEPRECATION")
@@ -518,7 +562,6 @@ class MainActivity : Activity() {
 
     companion object {
         private const val NOTIFICATION_PERMISSION_REQUEST = 10
-        private const val MINIMUM_TOKEN_LENGTH = 20
         private const val KEY_LAST_UPDATE_CHECK = "last_successful_check"
         private const val KEY_PENDING_APK_NAME = "pending_apk_name"
     }

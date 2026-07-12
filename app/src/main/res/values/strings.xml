@@ -3,7 +3,7 @@
     <string name="app_name">SupSécu</string>
     <string name="app_tagline">Le bon site, au bon endroit.</string>
     <string name="accessibility_service_label">Protection des adresses web</string>
-    <string name="accessibility_service_description">SupSécu utilise l’accessibilité pour lire l’adresse affichée par le navigateur et les indices de marque visibles sur la page. L’analyse reste sur l’appareil. Les mots de passe et l’historique ne sont ni enregistrés ni envoyés.</string>
+    <string name="accessibility_service_description">SupSécu utilise l’accessibilité pour lire l’adresse affichée par le navigateur et les indices de marque visibles. Sur une page commerciale suspecte, une capture peut être analysée brièvement sur l’appareil puis supprimée. Les mots de passe et l’historique ne sont ni enregistrés ni envoyés.</string>
 
     <string name="status_active">Protection active</string>
     <string name="status_active_detail">SupSécu surveille les adresses accessibles.</string>
@@ -18,7 +18,7 @@
     <string name="activate_protection">Activer la protection</string>
     <string name="open_accessibility_settings">Ouvrir les réglages d’accessibilité</string>
     <string name="disclosure_title">Avant d’activer SupSécu</string>
-    <string name="disclosure_body">Android accordera à SupSécu l’accès au contenu affiché à l’écran. L’application utilise cet accès uniquement pour repérer une barre d’adresse de navigateur et les indices de marque nécessaires à la détection d’une imitation. L’analyse reste en mémoire sur ce téléphone : aucun mot de passe, historique ou contenu n’est enregistré ou envoyé.</string>
+    <string name="disclosure_body">Android accordera à SupSécu l’accès au contenu affiché à l’écran. L’application l’utilise uniquement pour lire la barre d’adresse et, sur une page commerciale suspecte, analyser brièvement une capture localement afin de reconnaître un logo protégé. La capture n’est jamais enregistrée ni envoyée. Aucun mot de passe ou historique n’est collecté.</string>
     <string name="disclosure_continue">Compris, continuer</string>
     <string name="cancel">Annuler</string>
     <string name="notification_permission">Autoriser les notifications</string>
@@ -41,9 +41,19 @@
     <string name="result_impersonation_body">Ce site utilise %1$s, mais l’adresse officielle de %2$s est %3$s.</string>
     <string name="result_suspicious_title">Adresse ressemblante à vérifier</string>
     <string name="result_suspicious_body">Le domaine %1$s ressemble à %2$s, sans être son domaine officiel.</string>
+    <string name="result_known_threat_title">Domaine signalé comme dangereux</string>
+    <string name="result_known_threat_body">%1$s figure dans au moins une liste publique de sécurité. Quittez la page et ne transmettez aucune donnée.</string>
     <string name="result_no_evidence_title">Aucune usurpation reconnue</string>
     <string name="result_no_evidence_body">SupSécu ne reconnaît pas de marque protégée dans cette adresse. Cela ne garantit pas que le site soit fiable.</string>
     <string name="open_official_site">Ouvrir le site officiel</string>
+    <string name="share_report">Partager ce signalement</string>
+
+    <string name="threat_data_title">Données de protection publiques</string>
+    <string name="threat_data_empty">Les listes publiques ne sont pas encore disponibles. Le signalement Lidl fourni reste protégé localement.</string>
+    <string name="threat_data_refreshing">Téléchargement et vérification des listes publiques…</string>
+    <string name="threat_data_ready">%1$d domaines frauduleux connus, mis à jour le %2$s.</string>
+    <string name="threat_data_error">Impossible d’actualiser les listes : %1$s</string>
+    <string name="refresh_threat_data">Actualiser les listes de sécurité</string>
 
     <string name="update_title">Mises à jour sécurisées</string>
     <string name="update_status_initial">Version installée : %1$s</string>
@@ -53,24 +63,23 @@
     <string name="update_status_downloading">Téléchargement et vérification de SupSécu %1$s…</string>
     <string name="update_status_ready">Mise à jour vérifiée. Android va demander votre confirmation.</string>
     <string name="update_status_error">Mise à jour impossible : %1$s</string>
-    <string name="github_token_label">Accès au dépôt GitHub privé</string>
-    <string name="github_token_hint">Jeton GitHub en lecture seule</string>
-    <string name="github_token_explanation">À renseigner une seule fois. Le jeton doit pouvoir lire %1$s. Il est chiffré par Android et n’est envoyé qu’à api.github.com.</string>
-    <string name="save_github_access">Enregistrer l’accès GitHub</string>
-    <string name="replace_github_access">Remplacer l’accès GitHub</string>
-    <string name="clear_github_access">Oublier l’accès GitHub</string>
-    <string name="github_access_saved">Accès GitHub enregistré sur ce téléphone.</string>
-    <string name="github_access_required">Ajoutez d’abord un jeton GitHub autorisé à lire le dépôt privé.</string>
-    <string name="github_token_invalid">Saisissez un jeton GitHub valide.</string>
     <string name="check_update">Rechercher une mise à jour</string>
     <string name="update_dialog_title">Mise à jour disponible</string>
-    <string name="update_dialog_body">SupSécu %1$s est prête à être téléchargée depuis le dépôt privé. L’APK sera vérifié avant que l’installateur Android s’ouvre.</string>
+    <string name="update_dialog_body">SupSécu %1$s est prête à être téléchargée depuis la version publique. L’APK sera vérifié avant que l’installateur Android s’ouvre.</string>
     <string name="install_update">Télécharger et installer</string>
     <string name="unknown_sources_explanation">Android doit autoriser SupSécu à proposer son propre APK. Activez « Autoriser depuis cette source », puis revenez dans l’application.</string>
 
     <string name="privacy_title">Privé par construction</string>
-    <string name="privacy_body">Aucun serveur SupSécu et aucun historique enregistré. L’analyse des sites s’effectue uniquement sur ce téléphone. Internet est utilisé seulement pour vérifier les versions GitHub à votre demande.</string>
+    <string name="privacy_body">Aucun historique enregistré. Les URL visitées, le texte des pages et les captures analysées restent sur ce téléphone. Internet sert uniquement à récupérer les versions et les listes publiques de sécurité, jamais à vérifier individuellement votre navigation.</string>
     <string name="browser_limit">Certains navigateurs masquent leur barre d’adresse à Android. Dans ce cas, utilisez Partager → SupSécu pour vérifier le lien.</string>
+
+    <string name="feedback_title">Aider à améliorer SupSécu</string>
+    <string name="feedback_body">Préparez un e-mail au contact SupSécu, sans compte GitHub. Vous pourrez relire et modifier le message avant l’envoi. Si aucune application e-mail n’est disponible, Android proposera les autres applications de partage.</string>
+    <string name="send_feedback">Envoyer un commentaire</string>
+    <string name="feedback_subject">Commentaire SupSécu</string>
+    <string name="feedback_template_intro">Écrivez votre commentaire au-dessus de ces informations :</string>
+    <string name="feedback_privacy_note">Les diagnostics ne contiennent ni mot de passe ni historique. Supprimez toute information que vous ne souhaitez pas partager.</string>
+    <string name="no_share_app">Aucune application de partage n’est disponible.</string>
 
     <string name="alert_icon_description">Avertissement de sécurité</string>
     <string name="alert_title">Cette adresse n’est pas officielle</string>
@@ -78,6 +87,9 @@
     <string name="observed_address_label">Adresse actuellement affichée</string>
     <string name="official_address_label">Adresse officielle de %1$s</string>
     <string name="alert_reason">Le cadenas HTTPS ne suffit pas : l’identité d’un site dépend de son nom de domaine exact.</string>
+    <string name="known_threat_alert_title">Ce domaine est signalé</string>
+    <string name="known_threat_alert_intro">Cette adresse figure dans une ou plusieurs listes publiques de sites frauduleux ou malveillants.</string>
+    <string name="known_threat_alert_reason">Une liste peut contenir une erreur, mais il est plus prudent de quitter cette page et de rechercher le site officiel séparément.</string>
     <string name="leave_site">Quitter ce site</string>
     <string name="open_named_official_site">Ouvrir %1$s</string>
     <string name="continue_risk">Continuer malgré le risque</string>
@@ -89,5 +101,7 @@
     <string name="fraud_notification_text">%1$s n’est pas l’adresse officielle. Utilisez plutôt %2$s.</string>
     <string name="suspicious_notification_title">Adresse ressemblante détectée</string>
     <string name="suspicious_notification_text">%1$s ressemble à %2$s mais n’est pas son domaine officiel.</string>
+    <string name="known_threat_notification_title">Domaine signalé par une source de sécurité</string>
+    <string name="known_threat_notification_text">%1$s figure dans une liste publique de domaines dangereux.</string>
     <string name="open">Ouvrir</string>
 </resources>

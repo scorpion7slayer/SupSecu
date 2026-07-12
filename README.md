@@ -7,8 +7,9 @@ SupSécu est une application Android native qui avertit lorsqu’une page semble
 1. L’utilisateur active explicitement le service « Protection des adresses web » dans les réglages d’accessibilité Android.
 2. SupSécu cherche une barre d’adresse exposée par le navigateur, sans limiter la détection à une liste fermée d’applications.
 3. Le domaine est normalisé en ASCII/IDN puis comparé sur une frontière DNS exacte. `lidl.be.evil.com` n’est donc jamais accepté comme sous-domaine de `lidl.be`.
-4. Une page n’est accusée d’usurpation que si elle revendique fortement une marque : logo accessible et action transactionnelle, formulaire de connexion marqué, titre et action de marque, ou identité cohérente dans plusieurs zones.
-5. Une usurpation probable déclenche une notification et une alerte plein écran indiquant le domaine observé et l’adresse officielle.
+4. Le domaine est aussi comparé à une base locale alimentée chaque jour par plusieurs listes publiques de sécurité.
+5. Une page n’est accusée d’usurpation de marque que si elle revendique fortement cette marque : signalement confirmé, logo accessible, logo Lidl reconnu localement sur une page transactionnelle, formulaire de connexion marqué, titre et action de marque, ou identité cohérente dans plusieurs zones.
+6. Une usurpation probable ou un domaine publiquement signalé déclenche une notification et une alerte plein écran. Lorsqu’une marque est connue, l’adresse officielle est affichée.
 
 Un domaine seulement ressemblant, comme `amaz0n.com`, produit une notification prudente. Un domaine inconnu sans preuve de marque reste silencieux : SupSécu ne présente pas une intuition comme une certitude.
 
@@ -17,7 +18,9 @@ Un domaine seulement ressemblant, comme `amaz0n.com`, produit une notification p
 - Adresse frauduleuse fournie pour le scénario de test : `https://xcoemruf.shop/products/inventor-mobiele-airco-chilly-dc690`
 - Adresse officielle utilisée comme source de vérité : `https://www.lidl.be/`
 
-Le premier lien déclenche l’alerte automatique si la page expose une identité Lidl suffisamment forte à l’accessibilité Android. Dans le vérificateur manuel, choisir « Lidl » permet de confirmer explicitement la marque revendiquée.
+`xcoemruf.shop` est enregistré comme signalement frauduleux Lidl confirmé dans l’application. Il déclenche donc l’alerte et propose `https://www.lidl.be/` même si ni « Lidl » ni un nom ressemblant n’apparaît dans l’adresse. Les sous-domaines de ce domaine sont également couverts, contrairement à `xcoemruf.shop.example.com`.
+
+Pour les nouvelles fraudes sans nom de marque dans l’URL, SupSécu combine les listes publiques, les indices d’accessibilité et une reconnaissance visuelle locale et conservatrice du logo Lidl sur les pages transactionnelles. La capture utilisée pour cette reconnaissance est immédiatement supprimée et n’est jamais transmise.
 
 ## Compatibilité navigateur
 
@@ -35,13 +38,16 @@ Les exceptions officielles hébergées sur un autre domaine, comme `track.bpost.
 
 ## Confidentialité
 
-- aucune URL visitée ni aucun contenu de page envoyé sur Internet ;
+- aucune URL visitée, capture ni contenu de page envoyé sur Internet ;
 - aucun compte et aucun serveur SupSécu ;
 - aucune conservation de l’historique ou du contenu des pages ;
 - analyse en mémoire sur l’appareil ;
+- téléchargement quotidien de listes complètes de domaines dangereux, sans leur communiquer l’adresse visitée ;
 - contenu des notifications masqué sur l’écran verrouillé.
 
-La permission Internet sert uniquement au module de mise à jour GitHub. Pour le dépôt privé, l’utilisateur enregistre une fois un jeton GitHub en lecture seule. Il est chiffré avec Android Keystore et envoyé uniquement à `api.github.com` lors d’une vérification ou d’un téléchargement.
+La permission Internet sert uniquement à récupérer les versions publiques de SupSécu et les listes publiques de domaines dangereux. Aucun jeton GitHub et aucun compte ne sont nécessaires.
+
+Les données de réputation viennent de [Phishing.Database](https://github.com/Phishing-Database/Phishing.Database), de la [liste d’avertissements CERT Polska](https://cert.pl/lista-ostrzezen/) et de [PhishDestroy](https://phishdestroy.io/dataset). Une source temporairement indisponible n’empêche pas les autres d’actualiser la base locale. Les détails d’attribution figurent dans [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
 Le détail se trouve dans [PRIVACY.md](PRIVACY.md).
 
@@ -59,7 +65,7 @@ L’APK de développement est généré dans `app/build/outputs/apk/debug/app-de
 
 ## Mise à jour hors Play Store
 
-SupSécu consulte la dernière GitHub Release du dépôt privé `scorpion7slayer/SupSecu`, au maximum une fois toutes les six heures et seulement après l’enregistrement d’un accès GitHub. Lorsqu’une nouvelle version existe :
+SupSécu consulte anonymement la dernière GitHub Release du dépôt public `scorpion7slayer/SupSecu`, au maximum une fois toutes les six heures. Lorsqu’une nouvelle version existe :
 
 1. l’utilisateur confirme le téléchargement dans SupSécu ;
 2. le manifeste et l’APK sont récupérés exclusivement en HTTPS ;
@@ -69,13 +75,14 @@ SupSécu consulte la dernière GitHub Release du dépôt privé `scorpion7slayer
 
 Android impose une autorisation unique « Autoriser depuis cette source » pour les applications distribuées hors Play Store. SupSécu ne peut et ne cherche pas à contourner cette confirmation.
 
-Pour publier une future version, augmenter `versionCode` et `versionName`, exporter les quatre variables de signature `SUPSECU_*`, puis lancer :
+Pour publier une future version depuis le Mac de publication, augmenter `versionCode` et `versionName`, puis lancer :
 
 ```sh
 ./scripts/publish-release.sh v1.2.0
 ```
 
 Le script exécute les tests et Android Lint, construit l’APK signé, génère le manifeste SHA-256 et crée la GitHub Release.
+La clé privée reste dans `~/.config/supsecu/supsecu-release-v2.jks` et son mot de passe dans le Trousseau macOS sous `be.supsecu.app.release-keystore-v2`. `scripts/load-release-signing.sh` charge automatiquement les variables `SUPSECU_*` sans exposer le secret dans le dépôt.
 
 ## Premier lancement
 
@@ -84,10 +91,14 @@ Le script exécute les tests et Android Lint, construit l’APK signé, génère
 3. Activer « Protection des adresses web » dans Accessibilité.
 4. Autoriser les notifications sur Android 13 ou supérieur.
 5. Tester d’abord `https://www.lidl.be/`, puis partager l’URL d’exemple vers SupSécu en choisissant Lidl dans le vérificateur manuel.
-6. Pour les mises à jour privées, créer un jeton GitHub à accès fin limité à ce dépôt avec la permission de lecture du contenu, puis l’enregistrer dans la section « Mises à jour sécurisées ».
+6. Utiliser « Rechercher une mise à jour » pour vérifier l’accès anonyme à la dernière version publique.
+
+## Commentaires et signalements
+
+« Envoyer un commentaire » prépare un e-mail au contact du projet avec la version de SupSécu et les informations Android utiles. Aucun compte GitHub n’est requis et rien n’est envoyé avant la confirmation dans l’application e-mail. Si aucune application e-mail n’est disponible, SupSécu ouvre le partage Android. Depuis un résultat, « Partager ce signalement » ajoute l’URL et le verdict uniquement à la demande explicite de l’utilisateur.
 
 ## Limites de sécurité
 
-SupSécu est une première couche locale, pas un moteur mondial de réputation. Une page entièrement graphique, un navigateur qui cache son adresse, une marque absente du registre ou une fraude sans identité reconnaissable peuvent rester indétectables. L’application n’envoie pas les URL vers un service distant, ce qui protège la vie privée mais empêche aussi la vérification de l’ancienneté d’un domaine ou de listes de menaces en temps réel.
+SupSécu est une première couche locale, pas une garantie absolue. Une fraude très récente absente des listes, un navigateur qui cache son adresse, une marque absente du registre ou une page graphique dont le logo n’est pas reconnu peuvent rester indétectables. Les listes sont des signalements externes et peuvent exceptionnellement contenir une erreur ; l’interface présente donc ce résultat comme un signalement et non comme une certitude judiciaire.
 
 La publication sur Google Play nécessitera la déclaration d’usage de l’API AccessibilityService et la divulgation visible déjà intégrée à l’écran d’activation.

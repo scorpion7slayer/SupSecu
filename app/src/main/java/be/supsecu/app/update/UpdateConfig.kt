@@ -7,7 +7,6 @@ object UpdateConfig {
     const val PACKAGE_NAME = "be.supsecu.app"
     const val CHECK_INTERVAL_MS = 6L * 60L * 60L * 1_000L
 
-    val repositoryLabel: String = "$REPOSITORY_OWNER/$REPOSITORY_NAME"
     val latestReleaseApiUrl: String =
         "https://api.github.com/repos/$REPOSITORY_OWNER/$REPOSITORY_NAME/releases/latest"
 }
