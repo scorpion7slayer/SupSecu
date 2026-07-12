@@ -91,17 +91,15 @@
     <string name="known_threat_alert_intro">Cette adresse figure dans une ou plusieurs listes publiques de sites frauduleux ou malveillants.</string>
     <string name="known_threat_alert_reason">Une liste peut contenir une erreur, mais il est plus prudent de quitter cette page et de rechercher le site officiel séparément.</string>
     <string name="leave_site">Quitter ce site</string>
+    <string name="leave_page">Quitter la page</string>
     <string name="open_named_official_site">Ouvrir %1$s</string>
     <string name="continue_risk">Continuer malgré le risque</string>
     <string name="continue_confirm">Touchez encore pour confirmer</string>
 
     <string name="notification_channel_name">Alertes de fraude</string>
     <string name="notification_channel_description">Avertissements lorsqu’une page utilise une adresse non officielle.</string>
-    <string name="fraud_notification_title">%1$s : adresse non officielle</string>
-    <string name="fraud_notification_text">%1$s n’est pas l’adresse officielle. Utilisez plutôt %2$s.</string>
-    <string name="suspicious_notification_title">Adresse ressemblante détectée</string>
-    <string name="suspicious_notification_text">%1$s ressemble à %2$s mais n’est pas son domaine officiel.</string>
-    <string name="known_threat_notification_title">Domaine signalé par une source de sécurité</string>
-    <string name="known_threat_notification_text">%1$s figure dans une liste publique de domaines dangereux.</string>
-    <string name="open">Ouvrir</string>
+    <string name="fraud_notification_title">Ce site web n’est pas le site officiel</string>
+    <string name="fraud_notification_text">Le domaine officiel de %1$s est %2$s.</string>
+    <string name="known_threat_notification_title">Ce site web est signalé comme dangereux</string>
+    <string name="known_threat_notification_text">Quittez cette page. SupSécu ne connaît pas encore son site officiel.</string>
 </resources>

@@ -47,6 +47,10 @@
         </service>
 
         <receiver
+            android:name=".notification.SecurityNotificationActionReceiver"
+            android:exported="false" />
+
+        <receiver
             android:name=".update.UpdateInstallReceiver"
             android:exported="false"
             android:permission="android.permission.INSTALL_PACKAGES" />
