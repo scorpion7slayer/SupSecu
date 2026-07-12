@@ -21,6 +21,7 @@ import be.supsecu.app.core.Verdict
 import be.supsecu.app.notification.SecurityNotifier
 import be.supsecu.app.reputation.ThreatFeedUpdater
 import be.supsecu.app.reputation.ThreatRepository
+import java.lang.ref.WeakReference
 import java.text.Normalizer
 import java.util.Locale
 import java.util.concurrent.Executors
@@ -48,6 +49,7 @@ class BrowserProtectionService : AccessibilityService() {
 
     override fun onServiceConnected() {
         super.onServiceConnected()
+        activeService = WeakReference(this)
         notifier = SecurityNotifier(this)
         overlay = SecurityAlertOverlay(this)
         threatRepository = ThreatRepository(this)
@@ -211,9 +213,7 @@ class BrowserProtectionService : AccessibilityService() {
                 overlay.show(
                     assessment = assessment,
                     onLeave = {
-                        activeAlertPackage = null
-                        notifier.cancelAlerts()
-                        performGlobalAction(GLOBAL_ACTION_BACK)
+                        leaveActivePage()
                     },
                     onOpenOfficial = {
                         activeAlertPackage = null
@@ -257,12 +257,56 @@ class BrowserProtectionService : AccessibilityService() {
         backgroundExecutor.shutdownNow()
         activeAlertPackage = null
         lastEvent = null
+        if (activeService?.get() === this) activeService = null
         super.onDestroy()
     }
 
+    private fun leaveActivePageFromNotification() {
+        handler.post {
+            if (::overlay.isInitialized) overlay.dismiss()
+            leaveActivePage()
+        }
+    }
+
+    private fun leaveActivePage() {
+        if (::notifier.isInitialized) notifier.cancelAlerts()
+        activeAlertPackage = null
+        val unsafeUrl = candidateUrl
+        handler.postDelayed(
+            {
+                performGlobalAction(GLOBAL_ACTION_BACK)
+                handler.postDelayed(
+                    {
+                        if (unsafeUrl != null && activeBrowserUrl() == unsafeUrl) {
+                            performGlobalAction(GLOBAL_ACTION_BACK)
+                        }
+                    },
+                    LEAVE_FALLBACK_DELAY_MS,
+                )
+            },
+            LEAVE_ACTION_DELAY_MS,
+        )
+    }
+
+    private fun activeBrowserUrl(): String? {
+        val root = rootInActiveWindow ?: return null
+        return reader.read(root, null)?.url
+    }
+
     companion object {
+        @Volatile
+        private var activeService: WeakReference<BrowserProtectionService>? = null
+
+        fun requestLeaveActivePage(): Boolean {
+            val service = activeService?.get() ?: return false
+            service.leaveActivePageFromNotification()
+            return true
+        }
+
         private const val EVENT_DEBOUNCE_MS = 300L
         private const val URL_STABILITY_MS = 500L
+        private const val LEAVE_ACTION_DELAY_MS = 250L
+        private const val LEAVE_FALLBACK_DELAY_MS = 500L
         private const val VISUAL_SCAN_COOLDOWN_MS = 10_000L
         private const val LOG_TAG = "SupSecuProtection"
         private const val SYSTEM_UI_PACKAGE = "com.android.systemui"

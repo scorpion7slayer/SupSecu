@@ -11,7 +11,7 @@ SupSécu est une application Android native qui avertit lorsqu’une page semble
 5. Une page n’est accusée d’usurpation de marque que si elle revendique fortement cette marque : signalement confirmé, logo accessible, logo Lidl reconnu localement sur une page transactionnelle, formulaire de connexion marqué, titre et action de marque, ou identité cohérente dans plusieurs zones.
 6. Une usurpation probable ou un domaine publiquement signalé déclenche une notification et une alerte plein écran. Lorsqu’une marque est connue, l’adresse officielle est affichée.
 
-Un domaine seulement ressemblant, comme `amaz0n.com`, produit une notification prudente. Un domaine inconnu sans preuve de marque reste silencieux : SupSécu ne présente pas une intuition comme une certitude.
+Un domaine seulement ressemblant, comme `amaz0n.com`, produit une notification prudente. Pour éviter qu’un autre antivirus interprète cette alerte comme un partage de lien frauduleux, la notification n’affiche jamais le domaine suspect : elle indique le domaine officiel et propose « Quitter la page » ou « Ouvrir le site officiel ». Un domaine inconnu sans preuve de marque reste silencieux : SupSécu ne présente pas une intuition comme une certitude.
 
 ## Exemple Lidl
 

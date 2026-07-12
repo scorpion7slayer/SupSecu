@@ -36,36 +36,33 @@ class SecurityNotifier(
 
     fun showImpersonation(assessment: Assessment) {
         val brand = assessment.brand ?: return
-        val host = assessment.observedAsciiHost ?: return
-        val officialUrl = brand.officialUrl
-        val body = context.getString(R.string.fraud_notification_text, host, officialUrl)
+        val officialDomain = Uri.parse(brand.officialUrl).host ?: return
         notify(
             id = IMPERSONATION_NOTIFICATION_ID,
-            title = context.getString(R.string.fraud_notification_title, brand.displayName),
-            body = body,
-            officialUrl = officialUrl,
+            title = context.getString(R.string.fraud_notification_title),
+            body = context.getString(R.string.fraud_notification_text, brand.displayName, officialDomain),
+            officialBrandId = brand.id,
         )
     }
 
     fun showSuspicious(assessment: Assessment) {
         val brand = assessment.brand ?: return
-        val host = assessment.observedAsciiHost ?: return
-        val body = context.getString(R.string.suspicious_notification_text, host, brand.displayName)
+        val officialDomain = Uri.parse(brand.officialUrl).host ?: return
         notify(
             id = SUSPICIOUS_NOTIFICATION_ID,
-            title = context.getString(R.string.suspicious_notification_title),
-            body = body,
-            officialUrl = brand.officialUrl,
+            title = context.getString(R.string.fraud_notification_title),
+            body = context.getString(R.string.fraud_notification_text, brand.displayName, officialDomain),
+            officialBrandId = brand.id,
         )
     }
 
     fun showKnownThreat(assessment: Assessment) {
-        val host = assessment.observedAsciiHost ?: return
+        if (assessment.observedAsciiHost == null) return
         notify(
             id = KNOWN_THREAT_NOTIFICATION_ID,
             title = context.getString(R.string.known_threat_notification_title),
-            body = context.getString(R.string.known_threat_notification_text, host),
-            officialUrl = null,
+            body = context.getString(R.string.known_threat_notification_text),
+            officialBrandId = null,
         )
     }
 
@@ -75,7 +72,7 @@ class SecurityNotifier(
         manager.cancel(KNOWN_THREAT_NOTIFICATION_ID)
     }
 
-    private fun notify(id: Int, title: String, body: String, officialUrl: String?) {
+    private fun notify(id: Int, title: String, body: String, officialBrandId: String?) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
             context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
         ) {
@@ -83,15 +80,18 @@ class SecurityNotifier(
         }
 
         createChannel()
-        val openIntent = if (officialUrl != null) {
-            Intent(Intent.ACTION_VIEW, Uri.parse(officialUrl))
-        } else {
-            Intent(context, MainActivity::class.java)
-        }.apply { addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) }
-        val pendingIntent = PendingIntent.getActivity(
+        val contentIntent = PendingIntent.getActivity(
             context,
             id,
-            openIntent,
+            Intent(context, MainActivity::class.java).apply { addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) },
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        )
+        val leaveIntent = PendingIntent.getBroadcast(
+            context,
+            id + LEAVE_REQUEST_OFFSET,
+            Intent(context, SecurityNotificationActionReceiver::class.java).apply {
+                action = SecurityNotificationActionReceiver.ACTION_LEAVE_PAGE
+            },
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
 
@@ -101,12 +101,28 @@ class SecurityNotifier(
             .setContentTitle(title)
             .setContentText(body)
             .setStyle(Notification.BigTextStyle().bigText(body))
-            .setContentIntent(pendingIntent)
+            .setContentIntent(contentIntent)
             .setAutoCancel(true)
             .setCategory(Notification.CATEGORY_ERROR)
             .setVisibility(Notification.VISIBILITY_PRIVATE)
-        if (officialUrl != null) {
-            builder.addAction(Notification.Action.Builder(null, context.getString(R.string.open), pendingIntent).build())
+            .addAction(Notification.Action.Builder(null, context.getString(R.string.leave_page), leaveIntent).build())
+        if (officialBrandId != null) {
+            val officialIntent = PendingIntent.getBroadcast(
+                context,
+                id + OFFICIAL_REQUEST_OFFSET,
+                Intent(context, SecurityNotificationActionReceiver::class.java).apply {
+                    action = SecurityNotificationActionReceiver.ACTION_OPEN_OFFICIAL
+                    putExtra(SecurityNotificationActionReceiver.EXTRA_BRAND_ID, officialBrandId)
+                },
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+            )
+            builder.addAction(
+                Notification.Action.Builder(
+                    null,
+                    context.getString(R.string.open_official_site),
+                    officialIntent,
+                ).build(),
+            )
         }
 
         manager.notify(id, builder.build())
@@ -117,5 +133,7 @@ class SecurityNotifier(
         private const val IMPERSONATION_NOTIFICATION_ID = 2_001
         private const val SUSPICIOUS_NOTIFICATION_ID = 2_002
         private const val KNOWN_THREAT_NOTIFICATION_ID = 2_003
+        private const val LEAVE_REQUEST_OFFSET = 10_000
+        private const val OFFICIAL_REQUEST_OFFSET = 20_000
     }
 }

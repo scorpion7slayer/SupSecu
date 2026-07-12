@@ -48,7 +48,7 @@ SupSécu peut préparer un e-mail adressé au contact du projet. Un commentaire 
 
 ## Notifications
 
-Une notification peut contenir le domaine suspect et l’adresse officielle. Elle est marquée privée afin que son contenu soit masqué sur l’écran verrouillé selon les réglages Android.
+Une notification de marque contient uniquement son domaine officiel, jamais le domaine suspect détecté. Elle propose de quitter la page ou d’ouvrir le site officiel et reste marquée privée afin que son contenu soit masqué sur l’écran verrouillé selon les réglages Android.
 
 ## Contrôle utilisateur
 
