@@ -13,6 +13,7 @@ import android.net.Uri
 import android.os.Build
 import be.supsecu.app.R
 import be.supsecu.app.core.Assessment
+import be.supsecu.app.ui.MainActivity
 
 class SecurityNotifier(
     private val context: Context,
@@ -58,12 +59,23 @@ class SecurityNotifier(
         )
     }
 
+    fun showKnownThreat(assessment: Assessment) {
+        val host = assessment.observedAsciiHost ?: return
+        notify(
+            id = KNOWN_THREAT_NOTIFICATION_ID,
+            title = context.getString(R.string.known_threat_notification_title),
+            body = context.getString(R.string.known_threat_notification_text, host),
+            officialUrl = null,
+        )
+    }
+
     fun cancelAlerts() {
         manager.cancel(IMPERSONATION_NOTIFICATION_ID)
         manager.cancel(SUSPICIOUS_NOTIFICATION_ID)
+        manager.cancel(KNOWN_THREAT_NOTIFICATION_ID)
     }
 
-    private fun notify(id: Int, title: String, body: String, officialUrl: String) {
+    private fun notify(id: Int, title: String, body: String, officialUrl: String?) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
             context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
         ) {
@@ -71,9 +83,11 @@ class SecurityNotifier(
         }
 
         createChannel()
-        val openIntent = Intent(Intent.ACTION_VIEW, Uri.parse(officialUrl)).apply {
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        }
+        val openIntent = if (officialUrl != null) {
+            Intent(Intent.ACTION_VIEW, Uri.parse(officialUrl))
+        } else {
+            Intent(context, MainActivity::class.java)
+        }.apply { addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) }
         val pendingIntent = PendingIntent.getActivity(
             context,
             id,
@@ -81,7 +95,7 @@ class SecurityNotifier(
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
 
-        val notification = Notification.Builder(context, CHANNEL_ID)
+        val builder = Notification.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_notification)
             .setColor(Color.rgb(172, 27, 24))
             .setContentTitle(title)
@@ -91,15 +105,17 @@ class SecurityNotifier(
             .setAutoCancel(true)
             .setCategory(Notification.CATEGORY_ERROR)
             .setVisibility(Notification.VISIBILITY_PRIVATE)
-            .addAction(Notification.Action.Builder(null, context.getString(R.string.open), pendingIntent).build())
-            .build()
+        if (officialUrl != null) {
+            builder.addAction(Notification.Action.Builder(null, context.getString(R.string.open), pendingIntent).build())
+        }
 
-        manager.notify(id, notification)
+        manager.notify(id, builder.build())
     }
 
     companion object {
         private const val CHANNEL_ID = "security_alerts"
         private const val IMPERSONATION_NOTIFICATION_ID = 2_001
         private const val SUSPICIOUS_NOTIFICATION_ID = 2_002
+        private const val KNOWN_THREAT_NOTIFICATION_ID = 2_003
     }
 }

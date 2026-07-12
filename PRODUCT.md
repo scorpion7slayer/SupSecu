@@ -28,7 +28,7 @@ Calme, directe et protectrice. L’interface doit rassurer quand tout va bien et
 - **Silencieuse quand tout va bien.** Une adresse officielle ne déclenche aucune interruption.
 - **Expliquer l’écart.** Montrer le domaine observé et l’adresse officielle, plutôt qu’un simple message « danger ».
 - **Une issue évidente.** Quitter la page et ouvrir le site officiel doivent être les actions principales.
-- **Protection locale par défaut.** Aucun historique de navigation ni contenu de page n’est envoyé à un serveur ; le réseau reste limité à la récupération volontaire des mises à jour GitHub.
+- **Protection locale par défaut.** Aucun historique de navigation, URL visitée, capture ou contenu de page n’est envoyé à un serveur ; le réseau récupère seulement les versions et des listes complètes de domaines dangereux.
 - **Couverture honnête.** Automatiser partout où Android expose l’adresse et toujours proposer une vérification manuelle de secours.
 
 ## Accessibility & Inclusion

@@ -26,14 +26,13 @@ sealed interface UpdateCheckResult {
     data class UpToDate(val latestVersionName: String) : UpdateCheckResult
 }
 
-class UpdateAccessException(message: String) : IOException(message)
 class UpdateFormatException(message: String) : IOException(message)
 
 class GitHubUpdateClient(
     private val currentVersionCode: Long,
 ) {
-    fun check(token: String?): UpdateCheckResult {
-        val release = JSONObject(requestBytes(UpdateConfig.latestReleaseApiUrl, token, JSON_ACCEPT, MAX_JSON_BYTES).decodeToString())
+    fun check(): UpdateCheckResult {
+        val release = JSONObject(requestBytes(UpdateConfig.latestReleaseApiUrl, JSON_ACCEPT, MAX_JSON_BYTES).decodeToString())
         val assets = release.optJSONArray("assets")
             ?: throw UpdateFormatException("La version GitHub ne contient aucun fichier.")
 
@@ -52,7 +51,7 @@ class GitHubUpdateClient(
         val manifestUrl = manifestApiUrl
             ?: throw UpdateFormatException("Le manifeste de mise à jour est absent de la version GitHub.")
         val manifest = parseManifest(
-            requestBytes(manifestUrl, token, BINARY_ACCEPT, MAX_MANIFEST_BYTES).decodeToString(),
+            requestBytes(manifestUrl, BINARY_ACCEPT, MAX_MANIFEST_BYTES).decodeToString(),
         )
         val apkApiUrl = assetApiUrls[manifest.apkAssetName]
             ?: throw UpdateFormatException("Le fichier APK annoncé est absent de la version GitHub.")
@@ -64,13 +63,13 @@ class GitHubUpdateClient(
         }
     }
 
-    fun download(update: UpdateCheckResult.Available, token: String?, destination: File): File {
+    fun download(update: UpdateCheckResult.Available, destination: File): File {
         destination.parentFile?.mkdirs()
         val temporary = File(destination.parentFile, "${destination.name}.part")
         temporary.delete()
 
         try {
-            val connection = openConnection(update.apkAssetApiUrl, token, BINARY_ACCEPT)
+            val connection = openConnection(update.apkAssetApiUrl, BINARY_ACCEPT)
             connection.inputStream.use { input ->
                 temporary.outputStream().buffered().use { output ->
                     val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
@@ -129,8 +128,8 @@ class GitHubUpdateClient(
         return manifest
     }
 
-    private fun requestBytes(url: String, token: String?, accept: String, maximumBytes: Long): ByteArray {
-        val connection = openConnection(url, token, accept)
+    private fun requestBytes(url: String, accept: String, maximumBytes: Long): ByteArray {
+        val connection = openConnection(url, accept)
         return try {
             connection.inputStream.use { input ->
                 val output = java.io.ByteArrayOutputStream()
@@ -150,7 +149,7 @@ class GitHubUpdateClient(
         }
     }
 
-    private fun openConnection(initialUrl: String, token: String?, accept: String): HttpURLConnection {
+    private fun openConnection(initialUrl: String, accept: String): HttpURLConnection {
         var url = initialUrl
         repeat(MAX_REDIRECTS + 1) {
             val connection = URI(url).toURL().openConnection() as HttpURLConnection
@@ -161,10 +160,6 @@ class GitHubUpdateClient(
             connection.setRequestProperty("Accept", accept)
             connection.setRequestProperty("User-Agent", "SupSecu-Android")
             connection.setRequestProperty("X-GitHub-Api-Version", "2022-11-28")
-            if (!token.isNullOrBlank() && URI(url).host == "api.github.com") {
-                connection.setRequestProperty("Authorization", "Bearer $token")
-            }
-
             when (val status = connection.responseCode) {
                 HttpURLConnection.HTTP_OK -> return connection
                 HttpURLConnection.HTTP_MOVED_PERM,
@@ -185,7 +180,7 @@ class GitHubUpdateClient(
                 HttpURLConnection.HTTP_NOT_FOUND,
                 -> {
                     connection.disconnect()
-                    throw UpdateAccessException("Accès GitHub refusé. Vérifiez le jeton et son accès au dépôt privé.")
+                    throw IOException("La version publique SupSécu est momentanément inaccessible.")
                 }
                 else -> {
                     connection.disconnect()

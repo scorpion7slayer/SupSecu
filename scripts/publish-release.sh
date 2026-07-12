@@ -14,13 +14,22 @@ esac
 
 : "${JAVA_HOME:?JAVA_HOME doit pointer vers JDK 17}"
 : "${ANDROID_HOME:?ANDROID_HOME doit pointer vers le SDK Android}"
+root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+cd "$root"
+
+if [ -z "${SUPSECU_KEYSTORE_PATH:-}" ] ||
+    [ -z "${SUPSECU_KEYSTORE_PASSWORD:-}" ] ||
+    [ -z "${SUPSECU_KEY_ALIAS:-}" ] ||
+    [ -z "${SUPSECU_KEY_PASSWORD:-}" ]; then
+    # Sur le Mac de publication, les secrets sont conservés dans le Trousseau.
+    # shellcheck source=./load-release-signing.sh
+    . "$root/scripts/load-release-signing.sh"
+fi
+
 : "${SUPSECU_KEYSTORE_PATH:?SUPSECU_KEYSTORE_PATH est requis}"
 : "${SUPSECU_KEYSTORE_PASSWORD:?SUPSECU_KEYSTORE_PASSWORD est requis}"
 : "${SUPSECU_KEY_ALIAS:?SUPSECU_KEY_ALIAS est requis}"
 : "${SUPSECU_KEY_PASSWORD:?SUPSECU_KEY_PASSWORD est requis}"
-
-root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
-cd "$root"
 
 version_name=$(sed -n 's/^[[:space:]]*versionName = "\([^"]*\)"/\1/p' app/build.gradle.kts)
 version_code=$(sed -n 's/^[[:space:]]*versionCode = \([0-9][0-9]*\)/\1/p' app/build.gradle.kts)
